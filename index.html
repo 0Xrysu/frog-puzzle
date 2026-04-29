@@ -1,0 +1,206 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.page { background: #e8f5e2; min-height: 600px; padding: 24px 16px; display: flex; flex-direction: column; align-items: center; gap: 16px; border-radius: 12px; font-family: var(--font-sans); }
+.title-block { text-align: center; }
+.title-block h1 { font-size: 22px; font-weight: 500; color: #27500A; }
+.title-block p { font-size: 13px; color: #3B6D11; margin-top: 3px; }
+.level-row { display: flex; gap: 6px; width: 340px; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; scrollbar-width: none; }
+.level-row::-webkit-scrollbar { display: none; }
+.lv { font-size: 12px; padding: 4px 14px; border-radius: 99px; border: 1.5px solid #97C459; background: #fff; color: #3B6D11; cursor: not-allowed; opacity: 0.4; white-space: nowrap; flex-shrink: 0; user-select: none; }
+.lv.unlocked { opacity: 1; cursor: pointer; }
+.lv.active { background: #3B6D11; color: #EAF3DE; border-color: #3B6D11; opacity: 1; cursor: pointer; }
+.game-box { background: #fff; border: 1.5px solid #C0DD97; border-radius: 12px; padding: 12px; width: 340px; height: 340px; display: grid; gap: 4px; flex-shrink: 0; }
+.piece { cursor: pointer; overflow: hidden; border-radius: 4px; border: 2px solid transparent; transition: border 0.15s, transform 0.15s; }
+.piece.selected { border: 2px solid #27500A; transform: scale(0.93); }
+.piece.correct { border: 2px solid #639922; }
+.status-box { background: #fff; border: 1.5px solid #C0DD97; border-radius: 12px; padding: 16px; width: 340px; display: flex; flex-direction: column; gap: 10px; }
+.stat-row { display: flex; justify-content: space-between; }
+.stat-label { font-size: 13px; color: #3B6D11; }
+.stat-val { font-size: 13px; font-weight: 500; color: #27500A; }
+.frog-name { font-size: 12px; color: #3B6D11; text-align: center; background: #EAF3DE; border-radius: 99px; padding: 4px 12px; }
+.message { background: #EAF3DE; border: 1.5px solid #97C459; border-radius: 99px; padding: 8px 12px; text-align: center; font-size: 13px; color: #27500A; min-height: 36px; display: flex; align-items: center; justify-content: center; }
+.message.win { background: #3B6D11; color: #EAF3DE; border-color: #3B6D11; font-weight: 500; }
+.btn-row { display: flex; gap: 8px; }
+.btn { font-size: 12px; padding: 4px 14px; border-radius: 99px; border: 1.5px solid #97C459; background: #fff; color: #3B6D11; cursor: pointer; flex: 1; text-align: center; white-space: nowrap; user-select: none; min-height: 30px; display: flex; align-items: center; justify-content: center; }
+.btn-dim { opacity: 0.4; cursor: not-allowed; }
+.btn-active { background: #3B6D11; color: #EAF3DE; border-color: #3B6D11; opacity: 1; cursor: pointer; }
+.loading-state { display: flex; align-items: center; justify-content: center; height: 100%; color: #3B6D11; font-size: 13px; }
+</style>
+
+<div class="page">
+  <div class="title-block">
+    <h1>Frogs Puzzle</h1>
+    <p>Restore the frog</p>
+  </div>
+  <div class="level-row" id="levelRow"></div>
+  <div class="game-box" id="gameBox"><div class="loading-state">Loading frogs...</div></div>
+  <div class="status-box">
+    <div class="stat-row"><span class="stat-label">Level</span><span class="stat-val" id="statLevel">—</span></div>
+    <div class="stat-row"><span class="stat-label">Moves</span><span class="stat-val" id="statMoves">0</span></div>
+    <div class="stat-row"><span class="stat-label">Correct</span><span class="stat-val" id="statCorrect">0 / 0</span></div>
+    <div class="frog-name" id="frogName">—</div>
+    <div class="message" id="message">Loading frogs...</div>
+    <div class="btn-row">
+      <div class="btn" onclick="restartLevel()">Restart</div>
+      <div class="btn btn-dim" id="btnNext" onclick="tryNext()">Next Level</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const LEVELS = [
+  {grid:2},{grid:3},{grid:4},{grid:5},{grid:6},
+  {grid:7},{grid:8},{grid:9},{grid:10},{grid:11},
+  {grid:12},{grid:13},
+];
+
+const TOKEN = 'FROG-LAB-MOJFYKRX-DB5EE0';
+
+let allImages=[], currentLevel=0, maxUnlocked=0;
+let pieces=[], selected=-1, moves=0, won=false, currentImage='', currentName='';
+
+async function loadImages() {
+  try {
+    const res = await fetch('https://frogs.ink/api/images', {
+      headers: { 'frogs-token': TOKEN }
+    });
+    const data = await res.json();
+    allImages = (data.images||[]).map(i => ({ url: i.url, name: (i.filename||'').replace(/\.(png|jpg|jpeg|gif|webp)$/i,'').replace(/[-_]/g,' ').replace(/\b\w/g,c=>c.toUpperCase()) })).filter(i=>i.url);
+    if (!allImages.length) throw new Error();
+  } catch(e) {
+    allImages = Array.from({length:12},(_,i)=>({ url:`https://picsum.photos/seed/frog${i+1}/400/400`, name:`Frog ${i+1}` }));
+  }
+  buildLevelButtons();
+  startLevel(0);
+}
+
+function buildLevelButtons() {
+  const row = document.getElementById('levelRow');
+  row.innerHTML = '';
+  LEVELS.forEach((_,i) => {
+    const btn = document.createElement('div');
+    btn.id = 'lvBtn'+i;
+    btn.textContent = 'Lv '+(i+1);
+    btn.onclick = () => { if (i<=maxUnlocked) startLevel(i); };
+    row.appendChild(btn);
+  });
+  refreshLevelButtons();
+}
+
+function refreshLevelButtons() {
+  LEVELS.forEach((_,i) => {
+    const btn = document.getElementById('lvBtn'+i);
+    btn.className = 'lv'+(i===currentLevel?' active':i<=maxUnlocked?' unlocked':'');
+  });
+  const active = document.getElementById('lvBtn'+currentLevel);
+  if (active) active.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+}
+
+function shuffle(arr) {
+  const a=[...arr];
+  for (let i=a.length-1;i>0;i--) { const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+function goodShuffle(total) {
+  const order=Array.from({length:total},(_,i)=>i);
+  let s, tries=0;
+  do { s=shuffle(order); tries++; } while (s.some((v,i)=>v===i) && tries<200);
+  return s;
+}
+
+function startLevel(lvIdx) {
+  currentLevel=lvIdx; won=false; moves=0; selected=-1;
+  refreshLevelButtons();
+  const grid=LEVELS[lvIdx].grid;
+  const total=grid*grid;
+  const img = allImages[lvIdx % allImages.length];
+  currentImage = img.url;
+  currentName = img.name;
+  pieces = goodShuffle(total);
+  const box=document.getElementById('gameBox');
+  box.style.gridTemplateColumns=`repeat(${grid},1fr)`;
+  box.style.gridTemplateRows=`repeat(${grid},1fr)`;
+  box.innerHTML='';
+  for (let i=0;i<total;i++) {
+    const div=document.createElement('div');
+    div.className='piece';
+    div.onclick=()=>clickPiece(i);
+    box.appendChild(div);
+  }
+  renderPieces();
+  updateStatus();
+}
+
+function renderPieces() {
+  const grid=LEVELS[currentLevel].grid;
+  const box=document.getElementById('gameBox');
+  const pct=grid===1?0:100/(grid-1);
+  for (let i=0;i<grid*grid;i++) {
+    const div=box.children[i];
+    const ci=pieces[i];
+    const r=Math.floor(ci/grid), c=ci%grid;
+    div.style.backgroundImage=`url(${currentImage})`;
+    div.style.backgroundSize=`${grid*100}%`;
+    div.style.backgroundPosition=`${c*pct}% ${r*pct}%`;
+    div.classList.toggle('correct',ci===i);
+    div.classList.remove('selected');
+  }
+  if (selected!==-1 && box.children[selected]) box.children[selected].classList.add('selected');
+}
+
+function clickPiece(slotIdx) {
+  if (won) return;
+  if (selected===-1) {
+    selected=slotIdx;
+    document.getElementById('gameBox').children[slotIdx].classList.add('selected');
+  } else if (selected===slotIdx) {
+    document.getElementById('gameBox').children[slotIdx].classList.remove('selected');
+    selected=-1;
+  } else {
+    const tmp=pieces[selected]; pieces[selected]=pieces[slotIdx]; pieces[slotIdx]=tmp;
+    moves++; selected=-1;
+    renderPieces(); checkWin(); updateStatus();
+  }
+}
+
+function checkWin() {
+  if (pieces.every((v,i)=>v===i)) {
+    won=true;
+    if (currentLevel+1<LEVELS.length && currentLevel+1>maxUnlocked) {
+      maxUnlocked=currentLevel+1;
+      refreshLevelButtons();
+    }
+  }
+}
+
+function updateStatus() {
+  const grid=LEVELS[currentLevel].grid;
+  const total=grid*grid;
+  const correct=pieces.filter((v,i)=>v===i).length;
+  document.getElementById('statLevel').textContent=`${currentLevel+1} — ${grid}x${grid}`;
+  document.getElementById('statMoves').textContent=moves;
+  document.getElementById('statCorrect').textContent=`${correct} / ${total}`;
+  document.getElementById('frogName').textContent=currentName;
+  const msg=document.getElementById('message');
+  const btnNext=document.getElementById('btnNext');
+  const isLast=currentLevel===LEVELS.length-1;
+  if (won) {
+    msg.textContent=isLast?'You beat all levels!':'Perfect! Frog restored!';
+    msg.className='message win';
+    btnNext.className='btn btn-active';
+    btnNext.textContent=isLast?'Completed!':'Next Level';
+  } else {
+    msg.textContent=moves===0?'Click a piece, then click where to swap!':`${correct} in place — keep going!`;
+    msg.className='message';
+    btnNext.className='btn btn-dim';
+    btnNext.textContent='Next Level';
+  }
+}
+
+function restartLevel() { startLevel(currentLevel); }
+function tryNext() { if (won && currentLevel<LEVELS.length-1) startLevel(currentLevel+1); }
+
+loadImages();
+</script>

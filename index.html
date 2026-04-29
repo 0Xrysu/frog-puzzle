@@ -8,7 +8,9 @@
 
   <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  .page { background: #e8f5e2; min-height: 600px; padding: 24px 16px; display: flex; flex-direction: column; align-items: center; gap: 16px; border-radius: 12px; font-family: var(--font-sans); }
+  html, body { height: 100%; }
+  body { overflow-y: auto; }
+  .page { background: #e8f5e2; min-height: 100vh; padding: 24px 16px; display: flex; flex-direction: column; align-items: center; gap: 16px; font-family: sans-serif; }
   .title-block { text-align: center; }
   .title-block h1 { font-size: 22px; font-weight: 500; color: #27500A; }
   .title-block p { font-size: 13px; color: #3B6D11; margin-top: 3px; }

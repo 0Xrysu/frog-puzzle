@@ -9,48 +9,191 @@
   <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; }
-  body { overflow-y: auto; }
-  .page { background: #e8f5e2; min-height: 100vh; padding: 24px 16px; display: flex; flex-direction: column; align-items: center; gap: 16px; font-family: sans-serif; }
+  body { overflow-y: auto; background: #e8f5e2; font-family: sans-serif; }
+
+  .page {
+    min-height: 100vh;
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+  }
+
   .title-block { text-align: center; }
-  .title-block h1 { font-size: 22px; font-weight: 500; color: #27500A; }
-  .title-block p { font-size: 13px; color: #3B6D11; margin-top: 3px; }
-  .level-row { display: flex; gap: 6px; width: 340px; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; scrollbar-width: none; }
+  .title-block h1 { font-size: clamp(18px, 4vw, 24px); font-weight: 500; color: #27500A; }
+  .title-block p { font-size: clamp(11px, 2.5vw, 13px); color: #3B6D11; margin-top: 3px; }
+
+  .level-row {
+    display: flex;
+    gap: 6px;
+    width: min(340px, 92vw);
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
   .level-row::-webkit-scrollbar { display: none; }
-  .lv { font-size: 12px; padding: 4px 14px; border-radius: 99px; border: 1.5px solid #97C459; background: #fff; color: #3B6D11; cursor: not-allowed; opacity: 0.4; white-space: nowrap; flex-shrink: 0; user-select: none; }
+
+  .lv {
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 99px;
+    border: 1.5px solid #97C459;
+    background: #fff;
+    color: #3B6D11;
+    cursor: not-allowed;
+    opacity: 0.4;
+    white-space: nowrap;
+    flex-shrink: 0;
+    user-select: none;
+  }
   .lv.unlocked { opacity: 1; cursor: pointer; }
   .lv.active { background: #3B6D11; color: #EAF3DE; border-color: #3B6D11; opacity: 1; cursor: pointer; }
-  .game-box { background: #fff; border: 1.5px solid #C0DD97; border-radius: 12px; padding: 12px; width: 340px; height: 340px; display: grid; gap: 4px; flex-shrink: 0; }
-  .piece { cursor: pointer; overflow: hidden; border-radius: 4px; border: 2px solid transparent; transition: border 0.15s, transform 0.15s; }
-  .piece.selected { border: 2px solid #27500A; transform: scale(0.93); }
+
+  .game-box {
+    background: #fff;
+    border: 1.5px solid #C0DD97;
+    border-radius: 12px;
+    padding: 10px;
+    width: min(340px, 92vw);
+    height: min(340px, 92vw);
+    display: grid;
+    gap: 3px;
+    flex-shrink: 0;
+  }
+
+  .piece {
+    cursor: pointer;
+    overflow: hidden;
+    border-radius: 4px;
+    border: 2px solid transparent;
+    transition: border 0.12s, transform 0.12s;
+  }
+  .piece.selected { border: 2px solid #27500A; transform: scale(0.92); }
   .piece.correct { border: 2px solid #639922; }
-  .status-box { background: #fff; border: 1.5px solid #C0DD97; border-radius: 12px; padding: 16px; width: 340px; display: flex; flex-direction: column; gap: 10px; }
+  .piece.swap-anim { animation: swapFlash 0.18s ease; }
+
+  @keyframes swapFlash {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; transform: scale(0.88); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+
+  .status-box {
+    background: #fff;
+    border: 1.5px solid #C0DD97;
+    border-radius: 12px;
+    padding: 14px;
+    width: min(340px, 92vw);
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+
   .stat-row { display: flex; justify-content: space-between; }
-  .stat-label { font-size: 13px; color: #3B6D11; }
-  .stat-val { font-size: 13px; font-weight: 500; color: #27500A; }
-  .frog-name { font-size: 12px; color: #3B6D11; text-align: center; background: #EAF3DE; border-radius: 99px; padding: 4px 12px; }
-  .message { background: #EAF3DE; border: 1.5px solid #97C459; border-radius: 99px; padding: 8px 12px; text-align: center; font-size: 13px; color: #27500A; min-height: 36px; display: flex; align-items: center; justify-content: center; }
-  .message.win { background: #3B6D11; color: #EAF3DE; border-color: #3B6D11; font-weight: 500; }
+  .stat-label { font-size: clamp(11px, 2.5vw, 13px); color: #3B6D11; }
+  .stat-val { font-size: clamp(11px, 2.5vw, 13px); font-weight: 500; color: #27500A; }
+
+  .frog-name {
+    font-size: clamp(10px, 2.5vw, 12px);
+    color: #3B6D11;
+    text-align: center;
+    background: #EAF3DE;
+    border-radius: 99px;
+    padding: 4px 12px;
+    truncate: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .message {
+    background: #EAF3DE;
+    border: 1.5px solid #97C459;
+    border-radius: 99px;
+    padding: 8px 12px;
+    text-align: center;
+    font-size: clamp(11px, 2.5vw, 13px);
+    color: #27500A;
+    min-height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .message.win {
+    background: #3B6D11;
+    color: #EAF3DE;
+    border-color: #3B6D11;
+    font-weight: 500;
+    animation: winPop 0.3s ease;
+  }
+
+  @keyframes winPop {
+    0% { transform: scale(0.95); }
+    60% { transform: scale(1.04); }
+    100% { transform: scale(1); }
+  }
+
   .btn-row { display: flex; gap: 8px; }
-  .btn { font-size: 12px; padding: 4px 14px; border-radius: 99px; border: 1.5px solid #97C459; background: #fff; color: #3B6D11; cursor: pointer; flex: 1; text-align: center; white-space: nowrap; user-select: none; min-height: 30px; display: flex; align-items: center; justify-content: center; }
+  .btn {
+    font-size: clamp(11px, 2.5vw, 12px);
+    padding: 4px 14px;
+    border-radius: 99px;
+    border: 1.5px solid #97C459;
+    background: #fff;
+    color: #3B6D11;
+    cursor: pointer;
+    flex: 1;
+    text-align: center;
+    white-space: nowrap;
+    user-select: none;
+    min-height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
   .btn-dim { opacity: 0.4; cursor: not-allowed; }
   .btn-active { background: #3B6D11; color: #EAF3DE; border-color: #3B6D11; opacity: 1; cursor: pointer; }
-  .loading-state { display: flex; align-items: center; justify-content: center; height: 100%; color: #3B6D11; font-size: 13px; }
+
+  .loading-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #3B6D11;
+    font-size: 13px;
+  }
   </style>
 </head>
 
 <body>
-
 <div class="page">
   <div class="title-block">
     <h1>Frog Puzzle</h1>
     <p>Restore the frog</p>
   </div>
+
   <div class="level-row" id="levelRow"></div>
-  <div class="game-box" id="gameBox"><div class="loading-state">Loading frogs...</div></div>
+
+  <div class="game-box" id="gameBox">
+    <div class="loading-state">Loading frogs...</div>
+  </div>
+
   <div class="status-box">
-    <div class="stat-row"><span class="stat-label">Level</span><span class="stat-val" id="statLevel">—</span></div>
-    <div class="stat-row"><span class="stat-label">Moves</span><span class="stat-val" id="statMoves">0</span></div>
-    <div class="stat-row"><span class="stat-label">Correct</span><span class="stat-val" id="statCorrect">0 / 0</span></div>
+    <div class="stat-row">
+      <span class="stat-label">Level</span>
+      <span class="stat-val" id="statLevel">—</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Moves</span>
+      <span class="stat-val" id="statMoves">0</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Correct</span>
+      <span class="stat-val" id="statCorrect">0 / 0</span>
+    </div>
     <div class="frog-name" id="frogName">—</div>
     <div class="message" id="message">Loading frogs...</div>
     <div class="btn-row">
@@ -61,7 +204,6 @@
 </div>
 
 <script>
-
 const LEVELS = [
   {grid:2},{grid:3},{grid:4},{grid:5},{grid:6},
   {grid:7},{grid:8},{grid:9},{grid:10},{grid:11},
@@ -70,76 +212,152 @@ const LEVELS = [
 
 const TOKEN = 'FROG-LAB-MOJIDYOW-EFFBA7';
 
-let allImages=[], currentLevel=0, maxUnlocked=0;
-let pieces=[], selected=-1, moves=0, won=false, currentImage='', currentName='';
+let allImages = [], currentLevel = 0, maxUnlocked = 0;
+let pieces = [], selected = -1, moves = 0, won = false;
+let currentImage = '', currentName = '';
 
+// ── Audio ──────────────────────────────────────────────
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+
+function getAudio() {
+  if (!audioCtx) audioCtx = new AudioCtx();
+  return audioCtx;
+}
+
+function playSwap() {
+  try {
+    const ctx = getAudio();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = 'sine';
+    o.frequency.setValueAtTime(440, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(320, ctx.currentTime + 0.08);
+    g.gain.setValueAtTime(0.18, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+    o.start(); o.stop(ctx.currentTime + 0.12);
+  } catch(e) {}
+}
+
+function playCorrect() {
+  try {
+    const ctx = getAudio();
+    [440, 550].forEach((freq, i) => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type = 'sine';
+      o.frequency.value = freq;
+      g.gain.setValueAtTime(0.12, ctx.currentTime + i * 0.06);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.06 + 0.1);
+      o.start(ctx.currentTime + i * 0.06);
+      o.stop(ctx.currentTime + i * 0.06 + 0.1);
+    });
+  } catch(e) {}
+}
+
+function playWin() {
+  try {
+    const ctx = getAudio();
+    const notes = [523, 659, 784, 1047];
+    notes.forEach((freq, i) => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type = 'sine';
+      o.frequency.value = freq;
+      g.gain.setValueAtTime(0.15, ctx.currentTime + i * 0.1);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.1 + 0.2);
+      o.start(ctx.currentTime + i * 0.1);
+      o.stop(ctx.currentTime + i * 0.1 + 0.2);
+    });
+  } catch(e) {}
+}
+
+// ── Images ─────────────────────────────────────────────
 async function loadImages() {
   try {
     const res = await fetch('https://frogs.ink/api/images', {
       headers: { 'frogs-token': TOKEN }
     });
     const data = await res.json();
-    allImages = (data.images||[]).map(i => ({ url: i.url, name: (i.filename||'').replace(/\.(png|jpg|jpeg|gif|webp)$/i,'').replace(/[-_]/g,' ').replace(/\b\w/g,c=>c.toUpperCase()) })).filter(i=>i.url);
+    allImages = (data.images || []).map(i => ({
+      url: i.url,
+      name: (i.filename || '').replace(/\.(png|jpg|jpeg|gif|webp)$/i, '').replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+    })).filter(i => i.url);
+
+    allImages = shuffle(allImages); // random order every visit
+
     if (!allImages.length) throw new Error();
   } catch(e) {
-    allImages = Array.from({length:12},(_,i)=>({ url:`https://picsum.photos/seed/frog${i+1}/400/400`, name:`Frog ${i+1}` }));
+    allImages = Array.from({length: 12}, (_, i) => ({
+      url: `https://picsum.photos/seed/frog${i + 1}/400/400`,
+      name: `Frog ${i + 1}`
+    }));
   }
   buildLevelButtons();
   startLevel(0);
 }
 
+// ── Level buttons ──────────────────────────────────────
 function buildLevelButtons() {
   const row = document.getElementById('levelRow');
   row.innerHTML = '';
-  LEVELS.forEach((_,i) => {
+  LEVELS.forEach((_, i) => {
     const btn = document.createElement('div');
-    btn.id = 'lvBtn'+i;
-    btn.textContent = 'Lv '+(i+1);
-    btn.onclick = () => { if (i<=maxUnlocked) startLevel(i); };
+    btn.id = 'lvBtn' + i;
+    btn.textContent = 'Lv ' + (i + 1);
+    btn.onclick = () => { if (i <= maxUnlocked) startLevel(i); };
     row.appendChild(btn);
   });
   refreshLevelButtons();
 }
 
 function refreshLevelButtons() {
-  LEVELS.forEach((_,i) => {
-    const btn = document.getElementById('lvBtn'+i);
-    btn.className = 'lv'+(i===currentLevel?' active':i<=maxUnlocked?' unlocked':'');
+  LEVELS.forEach((_, i) => {
+    const btn = document.getElementById('lvBtn' + i);
+    btn.className = 'lv' + (i === currentLevel ? ' active' : i <= maxUnlocked ? ' unlocked' : '');
   });
-  const active = document.getElementById('lvBtn'+currentLevel);
-  if (active) active.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+  const active = document.getElementById('lvBtn' + currentLevel);
+  if (active) active.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
 }
 
+// ── Shuffle ────────────────────────────────────────────
 function shuffle(arr) {
-  const a=[...arr];
-  for (let i=a.length-1;i>0;i--) { const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
   return a;
 }
 
 function goodShuffle(total) {
-  const order=Array.from({length:total},(_,i)=>i);
-  let s, tries=0;
-  do { s=shuffle(order); tries++; } while (s.some((v,i)=>v===i) && tries<200);
+  const order = Array.from({length: total}, (_, i) => i);
+  let s, tries = 0;
+  do { s = shuffle(order); tries++; } while (s.some((v, i) => v === i) && tries < 200);
   return s;
 }
 
+// ── Game ───────────────────────────────────────────────
 function startLevel(lvIdx) {
-  currentLevel=lvIdx; won=false; moves=0; selected=-1;
+  currentLevel = lvIdx; won = false; moves = 0; selected = -1;
   refreshLevelButtons();
-  const grid=LEVELS[lvIdx].grid;
-  const total=grid*grid;
+  const grid = LEVELS[lvIdx].grid;
+  const total = grid * grid;
   const img = allImages[lvIdx % allImages.length];
   currentImage = img.url;
   currentName = img.name;
   pieces = goodShuffle(total);
-  const box=document.getElementById('gameBox');
-  box.style.gridTemplateColumns=`repeat(${grid},1fr)`;
-  box.style.gridTemplateRows=`repeat(${grid},1fr)`;
-  box.innerHTML='';
-  for (let i=0;i<total;i++) {
-    const div=document.createElement('div');
-    div.className='piece';
-    div.onclick=()=>clickPiece(i);
+  const box = document.getElementById('gameBox');
+  box.style.gridTemplateColumns = `repeat(${grid}, 1fr)`;
+  box.style.gridTemplateRows = `repeat(${grid}, 1fr)`;
+  box.innerHTML = '';
+  for (let i = 0; i < total; i++) {
+    const div = document.createElement('div');
+    div.className = 'piece';
+    div.onclick = () => clickPiece(i);
     box.appendChild(div);
   }
   renderPieces();
@@ -147,76 +365,93 @@ function startLevel(lvIdx) {
 }
 
 function renderPieces() {
-  const grid=LEVELS[currentLevel].grid;
-  const box=document.getElementById('gameBox');
-  const pct=grid===1?0:100/(grid-1);
-  for (let i=0;i<grid*grid;i++) {
-    const div=box.children[i];
-    const ci=pieces[i];
-    const r=Math.floor(ci/grid), c=ci%grid;
-    div.style.backgroundImage=`url(${currentImage})`;
-    div.style.backgroundSize=`${grid*100}%`;
-    div.style.backgroundPosition=`${c*pct}% ${r*pct}%`;
-    div.classList.toggle('correct',ci===i);
+  const grid = LEVELS[currentLevel].grid;
+  const box = document.getElementById('gameBox');
+  const pct = grid === 1 ? 0 : 100 / (grid - 1);
+  for (let i = 0; i < grid * grid; i++) {
+    const div = box.children[i];
+    const ci = pieces[i];
+    const r = Math.floor(ci / grid), c = ci % grid;
+    div.style.backgroundImage = `url(${currentImage})`;
+    div.style.backgroundSize = `${grid * 100}%`;
+    div.style.backgroundPosition = `${c * pct}% ${r * pct}%`;
+    div.classList.toggle('correct', ci === i);
     div.classList.remove('selected');
   }
-  if (selected!==-1 && box.children[selected]) box.children[selected].classList.add('selected');
+  if (selected !== -1 && box.children[selected]) {
+    box.children[selected].classList.add('selected');
+  }
 }
 
 function clickPiece(slotIdx) {
   if (won) return;
-  if (selected===-1) {
-    selected=slotIdx;
+  if (selected === -1) {
+    selected = slotIdx;
     document.getElementById('gameBox').children[slotIdx].classList.add('selected');
-  } else if (selected===slotIdx) {
+  } else if (selected === slotIdx) {
     document.getElementById('gameBox').children[slotIdx].classList.remove('selected');
-    selected=-1;
+    selected = -1;
   } else {
-    const tmp=pieces[selected]; pieces[selected]=pieces[slotIdx]; pieces[slotIdx]=tmp;
-    moves++; selected=-1;
-    renderPieces(); checkWin(); updateStatus();
+    const tmp = pieces[selected]; pieces[selected] = pieces[slotIdx]; pieces[slotIdx] = tmp;
+    moves++; selected = -1;
+
+    // swap animation
+    const box = document.getElementById('gameBox');
+    [box.children[slotIdx]].forEach(el => {
+      el.classList.add('swap-anim');
+      el.addEventListener('animationend', () => el.classList.remove('swap-anim'), { once: true });
+    });
+
+    playSwap();
+    renderPieces();
+    checkWin();
+    updateStatus();
   }
 }
 
 function checkWin() {
-  if (pieces.every((v,i)=>v===i)) {
-    won=true;
-    if (currentLevel+1<LEVELS.length && currentLevel+1>maxUnlocked) {
-      maxUnlocked=currentLevel+1;
+  if (pieces.every((v, i) => v === i)) {
+    won = true;
+    if (currentLevel + 1 < LEVELS.length && currentLevel + 1 > maxUnlocked) {
+      maxUnlocked = currentLevel + 1;
       refreshLevelButtons();
     }
+    playWin();
+  } else {
+    // play correct sound if more pieces in place than before
+    const correct = pieces.filter((v, i) => v === i).length;
+    if (correct > 0) playCorrect();
   }
 }
 
 function updateStatus() {
-  const grid=LEVELS[currentLevel].grid;
-  const total=grid*grid;
-  const correct=pieces.filter((v,i)=>v===i).length;
-  document.getElementById('statLevel').textContent=`${currentLevel+1} — ${grid}x${grid}`;
-  document.getElementById('statMoves').textContent=moves;
-  document.getElementById('statCorrect').textContent=`${correct} / ${total}`;
-  document.getElementById('frogName').textContent=currentName;
-  const msg=document.getElementById('message');
-  const btnNext=document.getElementById('btnNext');
-  const isLast=currentLevel===LEVELS.length-1;
+  const grid = LEVELS[currentLevel].grid;
+  const total = grid * grid;
+  const correct = pieces.filter((v, i) => v === i).length;
+  document.getElementById('statLevel').textContent = `${currentLevel + 1} — ${grid}x${grid}`;
+  document.getElementById('statMoves').textContent = moves;
+  document.getElementById('statCorrect').textContent = `${correct} / ${total}`;
+  document.getElementById('frogName').textContent = currentName;
+  const msg = document.getElementById('message');
+  const btnNext = document.getElementById('btnNext');
+  const isLast = currentLevel === LEVELS.length - 1;
   if (won) {
-    msg.textContent=isLast?'You beat all levels!':'Perfect! Frog restored!';
-    msg.className='message win';
-    btnNext.className='btn btn-active';
-    btnNext.textContent=isLast?'Completed!':'Next Level';
+    msg.textContent = isLast ? 'You beat all levels!' : 'Perfect! Frog restored!';
+    msg.className = 'message win';
+    btnNext.className = 'btn btn-active';
+    btnNext.textContent = isLast ? 'Completed!' : 'Next Level';
   } else {
-    msg.textContent=moves===0?'Click a piece, then click where to swap!':`${correct} in place — keep going!`;
-    msg.className='message';
-    btnNext.className='btn btn-dim';
-    btnNext.textContent='Next Level';
+    msg.textContent = moves === 0 ? 'Click a piece, then click where to swap!' : `${correct} in place — keep going!`;
+    msg.className = 'message';
+    btnNext.className = 'btn btn-dim';
+    btnNext.textContent = 'Next Level';
   }
 }
 
 function restartLevel() { startLevel(currentLevel); }
-function tryNext() { if (won && currentLevel<LEVELS.length-1) startLevel(currentLevel+1); }
+function tryNext() { if (won && currentLevel < LEVELS.length - 1) startLevel(currentLevel + 1); }
 
 loadImages();
 </script>
-
 </body>
 </html>

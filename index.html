@@ -1,32 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Frog Puzzle</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="./icon.png" type="image/png">
 
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-.page { background: #e8f5e2; min-height: 600px; padding: 24px 16px; display: flex; flex-direction: column; align-items: center; gap: 16px; border-radius: 12px; font-family: var(--font-sans); }
-.title-block { text-align: center; }
-.title-block h1 { font-size: 22px; font-weight: 500; color: #27500A; }
-.title-block p { font-size: 13px; color: #3B6D11; margin-top: 3px; }
-.level-row { display: flex; gap: 6px; width: 340px; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; scrollbar-width: none; }
-.level-row::-webkit-scrollbar { display: none; }
-.lv { font-size: 12px; padding: 4px 14px; border-radius: 99px; border: 1.5px solid #97C459; background: #fff; color: #3B6D11; cursor: not-allowed; opacity: 0.4; white-space: nowrap; flex-shrink: 0; user-select: none; }
-.lv.unlocked { opacity: 1; cursor: pointer; }
-.lv.active { background: #3B6D11; color: #EAF3DE; border-color: #3B6D11; opacity: 1; cursor: pointer; }
-.game-box { background: #fff; border: 1.5px solid #C0DD97; border-radius: 12px; padding: 12px; width: 340px; height: 340px; display: grid; gap: 4px; flex-shrink: 0; }
-.piece { cursor: pointer; overflow: hidden; border-radius: 4px; border: 2px solid transparent; transition: border 0.15s, transform 0.15s; }
-.piece.selected { border: 2px solid #27500A; transform: scale(0.93); }
-.piece.correct { border: 2px solid #639922; }
-.status-box { background: #fff; border: 1.5px solid #C0DD97; border-radius: 12px; padding: 16px; width: 340px; display: flex; flex-direction: column; gap: 10px; }
-.stat-row { display: flex; justify-content: space-between; }
-.stat-label { font-size: 13px; color: #3B6D11; }
-.stat-val { font-size: 13px; font-weight: 500; color: #27500A; }
-.frog-name { font-size: 12px; color: #3B6D11; text-align: center; background: #EAF3DE; border-radius: 99px; padding: 4px 12px; }
-.message { background: #EAF3DE; border: 1.5px solid #97C459; border-radius: 99px; padding: 8px 12px; text-align: center; font-size: 13px; color: #27500A; min-height: 36px; display: flex; align-items: center; justify-content: center; }
-.message.win { background: #3B6D11; color: #EAF3DE; border-color: #3B6D11; font-weight: 500; }
-.btn-row { display: flex; gap: 8px; }
-.btn { font-size: 12px; padding: 4px 14px; border-radius: 99px; border: 1.5px solid #97C459; background: #fff; color: #3B6D11; cursor: pointer; flex: 1; text-align: center; white-space: nowrap; user-select: none; min-height: 30px; display: flex; align-items: center; justify-content: center; }
-.btn-dim { opacity: 0.4; cursor: not-allowed; }
-.btn-active { background: #3B6D11; color: #EAF3DE; border-color: #3B6D11; opacity: 1; cursor: pointer; }
-.loading-state { display: flex; align-items: center; justify-content: center; height: 100%; color: #3B6D11; font-size: 13px; }
-</style>
+  <style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  .page { background: #e8f5e2; min-height: 600px; padding: 24px 16px; display: flex; flex-direction: column; align-items: center; gap: 16px; border-radius: 12px; font-family: var(--font-sans); }
+  .title-block { text-align: center; }
+  .title-block h1 { font-size: 22px; font-weight: 500; color: #27500A; }
+  .title-block p { font-size: 13px; color: #3B6D11; margin-top: 3px; }
+  .level-row { display: flex; gap: 6px; width: 340px; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; scrollbar-width: none; }
+  .level-row::-webkit-scrollbar { display: none; }
+  .lv { font-size: 12px; padding: 4px 14px; border-radius: 99px; border: 1.5px solid #97C459; background: #fff; color: #3B6D11; cursor: not-allowed; opacity: 0.4; white-space: nowrap; flex-shrink: 0; user-select: none; }
+  .lv.unlocked { opacity: 1; cursor: pointer; }
+  .lv.active { background: #3B6D11; color: #EAF3DE; border-color: #3B6D11; opacity: 1; cursor: pointer; }
+  .game-box { background: #fff; border: 1.5px solid #C0DD97; border-radius: 12px; padding: 12px; width: 340px; height: 340px; display: grid; gap: 4px; flex-shrink: 0; }
+  .piece { cursor: pointer; overflow: hidden; border-radius: 4px; border: 2px solid transparent; transition: border 0.15s, transform 0.15s; }
+  .piece.selected { border: 2px solid #27500A; transform: scale(0.93); }
+  .piece.correct { border: 2px solid #639922; }
+  .status-box { background: #fff; border: 1.5px solid #C0DD97; border-radius: 12px; padding: 16px; width: 340px; display: flex; flex-direction: column; gap: 10px; }
+  .stat-row { display: flex; justify-content: space-between; }
+  .stat-label { font-size: 13px; color: #3B6D11; }
+  .stat-val { font-size: 13px; font-weight: 500; color: #27500A; }
+  .frog-name { font-size: 12px; color: #3B6D11; text-align: center; background: #EAF3DE; border-radius: 99px; padding: 4px 12px; }
+  .message { background: #EAF3DE; border: 1.5px solid #97C459; border-radius: 99px; padding: 8px 12px; text-align: center; font-size: 13px; color: #27500A; min-height: 36px; display: flex; align-items: center; justify-content: center; }
+  .message.win { background: #3B6D11; color: #EAF3DE; border-color: #3B6D11; font-weight: 500; }
+  .btn-row { display: flex; gap: 8px; }
+  .btn { font-size: 12px; padding: 4px 14px; border-radius: 99px; border: 1.5px solid #97C459; background: #fff; color: #3B6D11; cursor: pointer; flex: 1; text-align: center; white-space: nowrap; user-select: none; min-height: 30px; display: flex; align-items: center; justify-content: center; }
+  .btn-dim { opacity: 0.4; cursor: not-allowed; }
+  .btn-active { background: #3B6D11; color: #EAF3DE; border-color: #3B6D11; opacity: 1; cursor: pointer; }
+  .loading-state { display: flex; align-items: center; justify-content: center; height: 100%; color: #3B6D11; font-size: 13px; }
+  </style>
+</head>
+
+<body>
 
 <div class="page">
   <div class="title-block">
@@ -49,6 +59,7 @@
 </div>
 
 <script>
+
 const LEVELS = [
   {grid:2},{grid:3},{grid:4},{grid:5},{grid:6},
   {grid:7},{grid:8},{grid:9},{grid:10},{grid:11},
@@ -204,3 +215,6 @@ function tryNext() { if (won && currentLevel<LEVELS.length-1) startLevel(current
 
 loadImages();
 </script>
+
+</body>
+</html>
